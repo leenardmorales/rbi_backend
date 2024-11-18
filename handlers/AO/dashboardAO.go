@@ -18,17 +18,14 @@ type Result struct {
 func GetTotalCountsClient(c *fiber.Ctx) error {
 	var results []Result
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			ci.member_status AS "Particulars",
@@ -51,7 +48,6 @@ func GetTotalCountsClient(c *fiber.Ctx) error {
 			ci.l_date_recog BETWEEN ? AND ?
 	`
 
-	// Execute the query, passing in parameters
 	err := database.DB.Raw(query, accountOfficer, startDate, endDate, accountOfficer, startDate, endDate).Scan(&results).Error
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to get total values"})
@@ -71,17 +67,14 @@ type LoanAccountResult struct {
 func GetLoanAccountTotals(c *fiber.Ctx) error {
 	var results []LoanAccountResult
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			la.bill_type AS "Particulars",
@@ -95,7 +88,7 @@ func GetLoanAccountTotals(c *fiber.Ctx) error {
 		GROUP BY 
 			la.bill_type
 	`
-	// Execute the query, passing in parameters
+
 	err := database.DB.Raw(query, accountOfficer, startDate, endDate).Scan(&results).Error
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to get loan account totals"})
@@ -114,12 +107,10 @@ type CapitalBuildUpResult struct {
 func GetCapitalBuildUp(c *fiber.Ctx) error {
 	var result []CapitalBuildUpResult
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
@@ -152,20 +143,16 @@ type AgeGroupCount struct {
 func GetAgeGroupCounts(c *fiber.Ctx) error {
 	var result AgeGroupCount
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Log parameters to check if they are correct
 	fmt.Printf("Parameters: accountOfficer=%s, startDate=%s, endDate=%s\n", accountOfficer, startDate, endDate)
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			COUNT(CASE WHEN EXTRACT(YEAR FROM AGE(ci.date_of_birth)) BETWEEN 18 AND 29 THEN 1 END) AS "Age 18-29",
@@ -183,7 +170,6 @@ func GetAgeGroupCounts(c *fiber.Ctx) error {
 			ci.l_date_recog BETWEEN ? AND ?
 	`
 
-	// Execute the query and scan the result into the struct
 	row := database.DB.Raw(query, accountOfficer, startDate, endDate).Row()
 	err := row.Scan(&result.Age18_29, &result.Age30_39, &result.Age40_49, &result.Age50_59, &result.Age60_69, &result.Age70_79, &result.Age80Plus, &result.Total)
 	if err != nil {
@@ -204,20 +190,16 @@ type ProductCount struct {
 func GetProductCounts(c *fiber.Ctx) error {
 	var results []ProductCount
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Log parameters to check if they are correct
 	fmt.Printf("Parameters: accountOfficer=%s, startDate=%s, endDate=%s\n", accountOfficer, startDate, endDate)
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			account_title_1 AS "Product Name",
@@ -231,7 +213,6 @@ func GetProductCounts(c *fiber.Ctx) error {
 			account_title_1
 	`
 
-	// Execute the query and scan the results into the slice of structs
 	rows, err := database.DB.Raw(query, accountOfficer, startDate, endDate).Rows()
 	if err != nil {
 		log.Printf("SQL Error: %v", err)
@@ -239,7 +220,6 @@ func GetProductCounts(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 
-	// Iterate over each row and append to results slice
 	for rows.Next() {
 		var productCount ProductCount
 		if err := rows.Scan(&productCount.ProductName, &productCount.Count); err != nil {
@@ -265,20 +245,16 @@ type CenterSummary struct {
 func GetCenterSummary(c *fiber.Ctx) error {
 	var results []CenterSummary
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Log parameters to check if they are correct
 	fmt.Printf("Parameters: accountOfficer=%s, startDate=%s, endDate=%s\n", accountOfficer, startDate, endDate)
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			ci.center_name AS "Center Name",
@@ -311,7 +287,6 @@ func GetCenterSummary(c *fiber.Ctx) error {
 			AND ci.l_date_recog BETWEEN ? AND ?
 	`
 
-	// Execute the query and scan the results into the slice of structs
 	rows, err := database.DB.Raw(query, accountOfficer, startDate, endDate, accountOfficer, startDate, endDate).Rows()
 	if err != nil {
 		log.Printf("SQL Error: %v", err)
@@ -319,7 +294,6 @@ func GetCenterSummary(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 
-	// Iterate over each row and append to results slice
 	for rows.Next() {
 		var centerSummary CenterSummary
 		if err := rows.Scan(&centerSummary.CenterName, &centerSummary.NoOfClients, &centerSummary.WithLoans, &centerSummary.WithoutLoans, &centerSummary.PastDue); err != nil {
@@ -343,20 +317,16 @@ type WeeklyCount struct {
 func GetWeeklyCustomerCount(c *fiber.Ctx) error {
 	var results []WeeklyCount
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Log parameters to check if they are correct
 	fmt.Printf("Parameters: accountOfficer=%s, startDate=%s, endDate=%s\n", accountOfficer, startDate, endDate)
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			ci.member_status AS "Particulars",
@@ -405,7 +375,6 @@ func GetWeeklyCustomerCount(c *fiber.Ctx) error {
 			"Particulars", "Week"
 	`
 
-	// Execute the query and scan the results into the slice of structs
 	rows, err := database.DB.Raw(query, accountOfficer, startDate, endDate, accountOfficer, startDate, endDate).Rows()
 	if err != nil {
 		log.Printf("SQL Error: %v", err)
@@ -413,7 +382,6 @@ func GetWeeklyCustomerCount(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 
-	// Iterate over each row and append to results slice
 	for rows.Next() {
 		var weeklyCount WeeklyCount
 		if err := rows.Scan(&weeklyCount.Particulars, &weeklyCount.Week, &weeklyCount.Count); err != nil {
@@ -437,20 +405,16 @@ type WeeklyCapitalBuildUp struct {
 func GetWeeklyCapitalBuildUp(c *fiber.Ctx) error {
 	var results []WeeklyCapitalBuildUp
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Log parameters to check if they are correct
 	fmt.Printf("Parameters: accountOfficer=%s, startDate=%s, endDate=%s\n", accountOfficer, startDate, endDate)
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			'Capital Build Up' AS "Title",
@@ -478,7 +442,6 @@ func GetWeeklyCapitalBuildUp(c *fiber.Ctx) error {
 			"Week"
 	`
 
-	// Execute the query and scan the results into the slice of structs
 	rows, err := database.DB.Raw(query, accountOfficer, startDate, endDate).Rows()
 	if err != nil {
 		log.Printf("SQL Error: %v", err)
@@ -486,7 +449,6 @@ func GetWeeklyCapitalBuildUp(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 
-	// Iterate over each row and append to results slice
 	for rows.Next() {
 		var capitalBuildUp WeeklyCapitalBuildUp
 		if err := rows.Scan(&capitalBuildUp.Title, &capitalBuildUp.Week, &capitalBuildUp.TotalCapital); err != nil {
@@ -513,21 +475,17 @@ type ActiveClientInfo struct {
 func GetClients(c *fiber.Ctx) error {
 	var results []ActiveClientInfo
 
-	// Get query parameters from the request
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 	memberStatus := c.Query("member_status", "Active")
 
-	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Log parameters to check if they are correct
 	fmt.Printf("Parameters: accountOfficer=%s, startDate=%s, endDate=%s, memberStatus=%s\n", accountOfficer, startDate, endDate, memberStatus)
 
-	// Define the SQL query with placeholders for parameters
 	query := `
 		SELECT 
 			ci.unit_name AS "Unit Name",
@@ -544,7 +502,6 @@ func GetClients(c *fiber.Ctx) error {
 			AND ci.member_status = ?
 	`
 
-	// Execute the query with the parameters
 	rows, err := database.DB.Raw(query, accountOfficer, startDate, endDate, memberStatus).Rows()
 	if err != nil {
 		log.Printf("SQL Error: %v", err)
@@ -552,7 +509,6 @@ func GetClients(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 
-	// Iterate over each row and append to results slice
 	for rows.Next() {
 		var clientInfo ActiveClientInfo
 		if err := rows.Scan(&clientInfo.UnitName, &clientInfo.CenterName, &clientInfo.CID, &clientInfo.ClientName, &clientInfo.DateRecognized, &clientInfo.MemberStatus); err != nil {
