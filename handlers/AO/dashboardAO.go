@@ -124,10 +124,6 @@ func GetCapitalBuildUp(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing required parameters"})
 	}
 
-	// Log parameters to check if they are correct
-	fmt.Printf("Parameters: accountOfficer=%s, startDate=%s, endDate=%s\n", accountOfficer, startDate, endDate)
-
-	// Define the SQL query to call the PostgreSQL function
 	query := `SELECT * FROM get_capital_build_up(?, ?, ?);`
 
 	// Execute the query with the parameters
@@ -510,7 +506,7 @@ type ActiveClientInfo struct {
 	CID            string `json:"cid"`
 	ClientName     string `json:"client_name"`
 	DateRecognized string `json:"date_recognized"`
-	MemberStatus   string `json:"member_status"` // Add member status to the response
+	MemberStatus   string `json:"member_status"`
 }
 
 // GetActiveClients handles the request to get information of clients for a specified officer, date range, and member status
@@ -521,7 +517,7 @@ func GetClients(c *fiber.Ctx) error {
 	accountOfficer := c.Query("account_officer")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
-	memberStatus := c.Query("member_status", "Active") // Default to 'Active' if not provided
+	memberStatus := c.Query("member_status", "Active")
 
 	// Validate required parameters
 	if accountOfficer == "" || startDate == "" || endDate == "" {
